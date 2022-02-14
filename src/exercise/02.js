@@ -3,10 +3,49 @@
 
 import * as React from 'react'
 
+/* Super flexible hook */
+
+function useLocalStorageWithState(
+  key,
+  defaultValue = '',
+  {serialize = JSON.stringify, deserialize = JSON.parse} = {},
+) {
+  const [state, setState] = React.useState(() => {
+    const valueInLocalStorage = window.localStorage.getItem(key)
+    if (valueInLocalStorage) {
+      return deserialize(valueInLocalStorage)
+    }
+    return typeof defaultValue === 'function' ? defaultValue() : defaultValue
+  })
+
+  const prevKeyRef = React.useRef(key)
+
+  React.useEffect(() => {
+    const prevKey = prevKeyRef.current
+    if (prevKey !== key) {
+      window.localStorage.setItem(key, serialize(state)) //To support objects other than string
+    }
+  }, [key, state, serialize])
+
+  return [state, setState]
+}
+
 function Greeting({initialName = ''}) {
+  /* function getInitialNameValue() {
+    console.log('Rendering')
+    return window.localStorage.getItem('name') || initialName
+  }
+ */
   // 🐨 initialize the state to the value from localStorage
   // 💰 window.localStorage.getItem('name') ?? initialName
-  const [name, setName] = React.useState(initialName)
+  const [name, setName] = useLocalStorageWithState('name', initialName)
+
+  /*   Or use React Arrow function to call that function for Lazy Load
+
+  const [name, setName] = React.useState(
+    () => window.localStorage.getItem('name') || initialName 
+  )
+ */
 
   // 🐨 Here's where you'll use `React.useEffect`.
   // The callback should set the `name` in localStorage.
