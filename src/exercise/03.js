@@ -1,29 +1,32 @@
 // Lifting state
 // http://localhost:3000/isolated/exercise/03.js
 
+/* This is the process of lifing one state and placing it in one higher up */
+
+/* Only put state which use it inside it , refactor */
+
 import * as React from 'react'
 
-function Name({name, onNameChange}) {
+function Name() {
+  const [name, setName] = React.useState('')
   return (
     <div>
       <label htmlFor="name">Name: </label>
-      <input id="name" value={name} onChange={onNameChange} />
+      <input
+        id="name"
+        value={name}
+        onChange={event => setName(event.target.value)}
+      />
     </div>
   )
 }
 
 // 🐨 accept `animal` and `onAnimalChange` props to this component
-function FavoriteAnimal() {
-  // 💣 delete this, it's now managed by the App
-  const [animal, setAnimal] = React.useState('')
+function FavoriteAnimal({animal, onAnimalChange}) {
   return (
     <div>
       <label htmlFor="animal">Favorite Animal: </label>
-      <input
-        id="animal"
-        value={animal}
-        onChange={event => setAnimal(event.target.value)}
-      />
+      <input id="animal" value={animal} onChange={onAnimalChange} />
     </div>
   )
 }
@@ -34,20 +37,27 @@ function FavoriteAnimal() {
 // }
 
 // 💣 remove this component in favor of the new one
-function Display({name}) {
-  return <div>{`Hey ${name}, you are great!`}</div>
+/* function Display({name, animal}) {
+  return <div>{`Hey ${name}, your favourite animal is : ${animal}!`}</div>
+} */
+
+function Display({name, animal}) {
+  return <div>{`Your favourite animal is : ${animal}!`}</div>
 }
 
 function App() {
   // 🐨 add a useState for the animal
-  const [name, setName] = React.useState('')
+  const [animal, setAnimal] = React.useState('')
   return (
     <form>
-      <Name name={name} onNameChange={event => setName(event.target.value)} />
+      <Name />
       {/* 🐨 pass the animal and onAnimalChange prop here (similar to the Name component above) */}
-      <FavoriteAnimal />
+      <FavoriteAnimal
+        animal={animal}
+        onAnimalChange={event => setAnimal(event.target.value)}
+      />
       {/* 🐨 pass the animal prop here */}
-      <Display name={name} />
+      <Display animal={animal} />
     </form>
   )
 }
